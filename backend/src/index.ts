@@ -1,0 +1,35 @@
+import express from 'express';
+import cors from 'cors';
+import 'dotenv/config';
+import { ENV } from './config/env';
+import {
+  clerkMiddleware,
+  clerkClient,
+  requireAuth,
+  getAuth,
+} from '@clerk/express';
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(cors({ origin: ENV.FRONTEND_URL, credentials: true }));
+// `credentials: true` allows the frontend to send cookies to the backend so that we can authenticate the user.
+app.use(clerkMiddleware()); // auth obj will be attached to the req
+app.use(express.json()); // parses JSON request bodies.
+app.use(express.urlencoded({ extended: true })); // parses URL-encoded request bodies (like form submissions).
+
+app.get('/api', (req, res) => {
+  res.json({
+    message:
+      'Welcome to Productify API - Powered by PostgreSQL, Drizzle ORM & Clerk Auth',
+    endpoints: {
+      users: '/api/users',
+      products: '/api/products',
+      comments: '/api/comments',
+    },
+  });
+});
+
+app.listen(ENV.PORT, () => {
+  console.log(`Server is running on port http://localhost:${ENV.PORT}/api`);
+});
